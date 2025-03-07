@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPS点击速度测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        #click-pad {
+            width: 400px;
+            height: 200px;
+            background: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            user-select: none;
+            margin: 20px auto;
+        }
+        img {
+            width: 200px;
+            margin-top: 20px;
+        }
+        #lang-btn, #donate-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: white;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            color: black;
+            position: relative;
+            z-index: 10;
+        }
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+        .text-background {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        #donate-section {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            z-index: 20;
+        }
+        #donate-section h1, #donate-section p {
+            color: black;
+        }
+        #donate-section img {
+            width: 100%;
+        }
+        #close-donate {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="lang-btn">中文 切换到 English</button>
+    <button id="donate-btn">💰 捐赠</button>
+
+    <div class="container">
+        <h1 id="title" class="text-background">点击速度测试（CPS）</h1>
+        <label for="time-input" id="label-time" class="text-background">请输入测试时间（秒）：</label>
+        <input type="number" id="time-input" value="5" min="1" step="0.1">
+        <p id="instructions" class="text-background">点击下面的方块开始！</p>
+
+        <div id="click-pad">点击这里！</div>
+
+        <h2 id="cps-display" class="text-background">当前 CPS：0</h2>
+        <h3 id="clicks-display" class="text-background">总点击次数：0</h3>
+
+        <hr>
+    </div>
+
+    <div id="donate-section">
+        <button id="close-donate">X</button>
+        <h1 id="donate-title" class="text-background">支持我 - 微信支付捐赠</h1>
+        <p id="donate-text" class="text-background">请扫描二维码进行捐赠：</p>
+        <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/wechatpay-qrcode.png" alt="微信支付二维码">
+        <p id="thank-you" class="text-background">感谢您的支持！</p>
+    </div>
+
+    <canvas id="rain"></canvas>
+
+    <script>
+        let clicks = 0;
+        let timeLeft = 0;
+        let startTime = 0;
+        let interval;
+        let isRunning = false;
+        let lang = "zh";
+
+        document.getElementById("click-pad").addEventListener("click", function() {
+            if (!isRunning) {
+                startTest();
+            } else {
+                registerClick();
+            }
+        });
+
+        function startTest() {
+            clicks = 0;
+            document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：0" : "Total Clicks: 0";
+            document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：0" : "Current CPS: 0";
+
+            timeLeft = parseFloat(document.getElementById("time-input").value);
+            if (timeLeft <= 0 || isNaN(timeLeft)) {
+                alert(lang === "zh" ? "请输入有效的时间！" : "Please enter a valid time!");
+                return;
+            }
+
+            isRunning = true;
+            startTime = performance.now();
+
+            interval = setInterval(updateCPS, 10);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                isRunning = false;
+                alert(lang === "zh" ? `时间到！您共点击了 ${clicks} 次。` : `Time's up! You clicked ${clicks} times.`);
+            }, timeLeft * 1000);
+        }
+
+        function registerClick() {
+            if (isRunning) {
+                clicks++;
+                document.getElementById("clicks-display").innerText = lang === "zh"
+                    ? "总点击次数：" + clicks
+                    : "Total Clicks: " + clicks;
+            }
+        }
+
+        function updateCPS() {
+            let elapsedTime = (performance.now() - startTime) / 1000;
+            let cps = clicks / elapsedTime;
+            document.getElementById("cps-display").innerText = lang === "zh"
+                ? "当前 CPS：" + cps.toFixed(2)
+                : "Current CPS: " + cps.toFixed(2);
+        }
+
+        document.getElementById("lang-btn").addEventListener("click", function() {
+            if (lang === "zh") {
+                lang = "en";
+                document.getElementById("lang-btn").innerText = "English Switch to 中文简体";
+                document.getElementById("title").innerText = "Click Speed Test (CPS)";
+                document.getElementById("label-time").innerText = "Enter test duration (seconds):";
+                document.getElementById("instructions").innerText = "Click the box below to start!";
+                document.getElementById("click-pad").innerText = "Click Here!";
+                document.getElementById("cps-display").innerText = "Current CPS: 0";
+                document.getElementById("clicks-display").innerText = "Total Clicks: 0";
+                document.getElementById("donate-title").innerText = "Support Me - WeChat Pay Donation";
+                document.getElementById("donate-text").innerText = "Scan the QR code below to donate:";
+                document.getElementById("thank-you").innerText = "Thank you for your support!";
+            } else {
+                lang = "zh";
+                document.getElementById("lang-btn").innerText = "中文简体 切换到 English";
+                document.getElementById("title").innerText = "点击速度测试（CPS）";
+                document.getElementById("label-time").innerText = "请输入测试时间（秒）：";
+                document.getElementById("instructions").innerText = "点击下面的方块开始！";
+                document.getElementById("click-pad").innerText = "点击这里！";
+                document.getElementById("cps-display").innerText = "当前 CPS：0";
+                document.getElementById("clicks-display").innerText = "总点击次数：0";
+                document.getElementById("donate-title").innerText = "支持我 - 微信支付捐赠";
+                document.getElementById("donate-text").innerText = "请扫描二维码进行捐赠：";
+                document.getElementById("thank-you").innerText = "感谢您的支持！";
+            }
+        });
+
+        document.getElementById("donate-btn").addEventListener("click", function() {
+            document.getElementById("donate-section").style.display = "block";
+        });
+
+        document.getElementById("close-donate").addEventListener("click", function() {
+            document.getElementById("donate-section").style.display = "none";
+        });
+
+        const canvas = document.getElementById('rain');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const charArray = chars.split("");
+
+        const drops = [];
+
+        function createDrop() {
+            const x = Math.random() * canvas.width;
+            drops.push({
+                x: x,
+                y: -20,
+                speed: Math.random() * 5 + 2,
+                char: charArray[Math.floor(Math.random() * charArray.length)]
+            });
+        }
+
+        function drawRain() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "green";
+            ctx.font = "20px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+                const drop = drops[i];
+                ctx.fillText(drop.char, drop.x, drop.y);
+                drop.y += drop.speed;
+
+                if (drop.y > canvas.height) {
+                    drop.y = -20;
+                    drop.x = Math.random() * canvas.width;
+                    drop.char = charArray[Math.floor(Math.random() * charArray.length)];
+                }
+            }
+        }
+
+        setInterval(createDrop, 100);
+        setInterval(drawRain, 30);
+
+    </script>
+
+</body>
+</html>
