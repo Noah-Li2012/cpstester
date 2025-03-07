@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPS点击速度测试</title>
+    <title>CpsTester测速器</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -95,7 +95,7 @@
 </head>
 <body>
 
-    <button id="lang-btn">中文 切换到 English</button>
+    <button id="lang-btn">中文简体 Switch to English</button>
     <button id="donate-btn">💰 捐赠</button>
 
     <div class="container">
@@ -181,7 +181,7 @@
         document.getElementById("lang-btn").addEventListener("click", function() {
             if (lang === "zh") {
                 lang = "en";
-                document.getElementById("lang-btn").innerText = "English Switch to 中文简体";
+                document.getElementById("lang-btn").innerText = "English 切换成 中文简体";
                 document.getElementById("title").innerText = "Click Speed Test (CPS)";
                 document.getElementById("label-time").innerText = "Enter test duration (seconds):";
                 document.getElementById("instructions").innerText = "Click the box below to start!";
@@ -193,7 +193,7 @@
                 document.getElementById("thank-you").innerText = "Thank you for your support!";
             } else {
                 lang = "zh";
-                document.getElementById("lang-btn").innerText = "中文简体 切换到 English";
+                document.getElementById("lang-btn").innerText = "中文简体 Switch English";
                 document.getElementById("title").innerText = "点击速度测试（CPS）";
                 document.getElementById("label-time").innerText = "请输入测试时间（秒）：";
                 document.getElementById("instructions").innerText = "点击下面的方块开始！";
