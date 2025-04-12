@@ -18,8 +18,8 @@
     }
 
     #click-pad {
-      width: 400px;
-      height: 200px;
+      width: 500px;
+      height: 300px;
       background: #050AA6;
       color: white;
       display: flex;
@@ -37,18 +37,9 @@
     }
 
     @keyframes clickEffect {
-      0% {
-        transform: scale(1);
-        background-color: #3498db;
-      }
-      50% {
-        transform: scale(0.9);
-        background-color: #2980b9;
-      }
-      100% {
-        transform: scale(1);
-        background-color: #3498db;
-      }
+      0% { transform: scale(1); background-color: #3498db; }
+      50% { transform: scale(0.9); background-color: #2980b9; }
+      100% { transform: scale(1); background-color: #3498db; }
     }
 
     #click-pad.clicked {
@@ -100,6 +91,11 @@
       background-color: rgba(255, 255, 255, 0.2);
       padding: 10px;
       border-radius: 5px;
+    }
+
+    #status-bar {
+      margin-top: 10px;
+      font-size: 18px;
     }
 
     #rain {
@@ -161,8 +157,12 @@
       <div id="pad-clicks">0</div>
     </div>
 
-    <h2 id="cps-display" class="text-background">当前 CPS：0</h2>
-    <h3 id="clicks-display" class="text-background">总点击次数：0</h3>
+    <div id="status-bar" class="text-background">
+      <span id="clicks-display">总点击次数：0</span> |
+      <span id="cps-display">当前 CPS：0</span> |
+      <span id="time-left-display">剩余时间：0s</span>
+    </div>
+
     <hr>
   </div>
 
@@ -213,7 +213,8 @@
       clicks = 0;
       document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：0" : "Total Clicks: 0";
       document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：0" : "Current CPS: 0";
-      document.getElementById("pad-clicks").innerText = lang === "zh" ? "0" : "0";
+      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：0s" : "Time Left: 0s";
+      document.getElementById("pad-clicks").innerText = "0";
 
       timeLeft = parseFloat(document.getElementById("time-input").value);
       if (timeLeft <= 0 || isNaN(timeLeft)) {
@@ -236,14 +237,16 @@
       if (isRunning) {
         clicks++;
         document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：" + clicks : "Total Clicks: " + clicks;
-        document.getElementById("pad-clicks").innerText = lang === "zh" ? "" + clicks : "" + clicks;
+        document.getElementById("pad-clicks").innerText = "" + clicks;
       }
     }
 
     function updateCPS() {
       let elapsedTime = (performance.now() - startTime) / 1000;
       let cps = clicks / elapsedTime;
+      let remaining = Math.max(0, (timeLeft - elapsedTime)).toFixed(1);
       document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：" + cps.toFixed(2) : "Current CPS: " + cps.toFixed(2);
+      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：" + remaining + "s" : "Time Left: " + remaining + "s";
     }
 
     document.getElementById("lang-btn").addEventListener("click", function () {
@@ -253,9 +256,10 @@
       document.getElementById("label-time").innerText = lang === "zh" ? "请输入测试时间（秒）：" : "Enter test duration (seconds):";
       document.getElementById("instructions").innerText = lang === "zh" ? "点击下面的方块开始！（支持左键和右键）" : "Click the box below to start! (Left & right click supported)";
       document.getElementById("pad-text").innerText = lang === "zh" ? "点击这里！" : "Click Here!";
-      document.getElementById("pad-clicks").innerText = lang === "zh" ? "" + clicks : "" + clicks;
+      document.getElementById("pad-clicks").innerText = "" + clicks;
       document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：0" : "Current CPS: 0";
       document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：0" : "Total Clicks: 0";
+      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：0s" : "Time Left: 0s";
       document.getElementById("donate-title").innerText = lang === "zh" ? "支持我 - 微信支付捐赠" : "Support Me - WeChat Pay Donation";
       document.getElementById("donate-text").innerText = lang === "zh" ? "请扫描二维码进行捐赠：" : "Scan the QR code below to donate:";
       document.getElementById("thank-you").innerText = lang === "zh" ? "感谢您的支持！" : "Thank you for your support!";
