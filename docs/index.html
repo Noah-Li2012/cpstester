@@ -36,14 +36,59 @@
       transition: transform 0.1s ease, background-color 0.2s ease;
     }
 
+    #click-pad.clicked {
+      animation: clickEffect 0.2s ease, flash 0.3s ease;
+    }
+
+    .combo-text {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  color: #FFA500;
+  font-weight: bold;
+  animation: combo-animation 0.6s ease-out;
+}
+
+@keyframes combo-animation {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -30%) scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -150%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+
     @keyframes clickEffect {
       0% { transform: scale(1); background-color: #3498db; }
       50% { transform: scale(0.9); background-color: #2980b9; }
       100% { transform: scale(1); background-color: #3498db; }
     }
 
-    #click-pad.clicked {
-      animation: clickEffect 0.2s ease;
+    @keyframes flash {
+      0% {
+        box-shadow: 0 0 0px #fff;
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      50% {
+        box-shadow: 0 0 25px #00ffff;
+        transform: scale(1.08);
+        filter: brightness(1.5);
+      }
+      100% {
+        box-shadow: 0 0 0px #fff;
+        transform: scale(1);
+        filter: brightness(1);
+      }
     }
 
     .ripple {
@@ -158,9 +203,9 @@
     </div>
 
     <div id="status-bar" class="text-background">
-      <span id="clicks-display">总点击次数：0</span> |
-      <span id="cps-display">当前 CPS：0</span> |
-      <span id="time-left-display">剩余时间：0s</span>
+      <span id="clicks-display">CLICKS: 0</span> |
+      <span id="cps-display">CPS: 0</span> |
+      <span id="time-left-display">TIME LEFT: 0s</span>
     </div>
 
     <hr>
@@ -183,37 +228,49 @@
     let interval;
     let isRunning = false;
     let lang = "zh";
+    let comboCount = 0;
+    const comboThreshold = 5;
 
     function handlePadClick(e) {
-      e.preventDefault();
-      const pad = document.getElementById("click-pad");
-      pad.classList.remove("clicked");
-      void pad.offsetWidth;
-      pad.classList.add("clicked");
+  e.preventDefault();
+  const pad = document.getElementById("click-pad");
+  pad.classList.remove("clicked");
+  void pad.offsetWidth;
+  pad.classList.add("clicked");
 
-      const ripple = document.createElement("span");
-      ripple.className = "ripple";
-      const rect = pad.getBoundingClientRect();
-      ripple.style.left = `${e.clientX - rect.left}px`;
-      ripple.style.top = `${e.clientY - rect.top}px`;
-      pad.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 600);
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  const rect = pad.getBoundingClientRect();
+  ripple.style.left = `${e.clientX - rect.left}px`;
+  ripple.style.top = `${e.clientY - rect.top}px`;
+  pad.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 600);
 
-      if (!isRunning) {
-        startTest();
-      } else {
-        registerClick();
-      }
-    }
+  if (!isRunning) {
+    startTest();
+  } else {
+    registerClick();
+  }
+
+  const comboText = document.createElement("div");
+  comboText.className = "combo-text";
+  comboText.innerText = `⬆🔥${clicks}🔥⬆`;
+  pad.appendChild(comboText);
+
+  setTimeout(() => {
+    comboText.remove();
+  }, 500);
+}
+
 
     document.getElementById("click-pad").addEventListener("click", handlePadClick);
     document.getElementById("click-pad").addEventListener("contextmenu", handlePadClick);
 
     function startTest() {
       clicks = 0;
-      document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：0" : "Total Clicks: 0";
-      document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：0" : "Current CPS: 0";
-      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：0s" : "Time Left: 0s";
+      document.getElementById("clicks-display").innerText = lang === "zh" ? "CLICKS: 0" : "Total Clicks: 0";
+      document.getElementById("cps-display").innerText = lang === "zh" ? "CPS: 0" : "Current CPS: 0";
+      document.getElementById("time-left-display").innerText = lang === "zh" ? "TIME LEFT: 0s" : "Time Left: 0s";
       document.getElementById("pad-clicks").innerText = "0";
 
       timeLeft = parseFloat(document.getElementById("time-input").value);
@@ -236,7 +293,7 @@
     function registerClick() {
       if (isRunning) {
         clicks++;
-        document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：" + clicks : "Total Clicks: " + clicks;
+        document.getElementById("clicks-display").innerText = lang === "zh" ? "CLICKS: " + clicks : "Total Clicks: " + clicks;
         document.getElementById("pad-clicks").innerText = "" + clicks;
       }
     }
@@ -245,8 +302,23 @@
       let elapsedTime = (performance.now() - startTime) / 1000;
       let cps = clicks / elapsedTime;
       let remaining = Math.max(0, (timeLeft - elapsedTime)).toFixed(1);
-      document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：" + cps.toFixed(2) : "Current CPS: " + cps.toFixed(2);
-      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：" + remaining + "s" : "Time Left: " + remaining + "s";
+      document.getElementById("cps-display").innerText = lang === "zh" ? "CPS: " + cps.toFixed(2) : "Current CPS: " + cps.toFixed(2);
+      document.getElementById("time-left-display").innerText = lang === "zh" ? "TIME LEFT: " + remaining + "s" : "Time Left: " + remaining + "s";
+    }
+
+    function getCPS() {
+      let elapsedTime = (performance.now() - startTime) / 1000;
+      return clicks / elapsedTime;
+    }
+
+    function displayCombo() {
+      const comboDisplay = document.getElementById("pad-text");
+      comboDisplay.innerText = `🔥${clicks}🔥`;
+      comboDisplay.style.color = "yellow";
+      setTimeout(() => {
+        comboDisplay.innerText = lang === "zh" ? "点击这里！" : "Click Here!";
+        comboDisplay.style.color = "white";
+      }, 1000);
     }
 
     document.getElementById("lang-btn").addEventListener("click", function () {
@@ -254,15 +326,7 @@
       document.getElementById("lang-btn").innerText = lang === "zh" ? "中文简体 Switch English" : "English 切换成 中文简体";
       document.getElementById("title").innerText = lang === "zh" ? "点击速度测试（CPS）" : "Click Speed Test (CPS)";
       document.getElementById("label-time").innerText = lang === "zh" ? "请输入测试时间（秒）：" : "Enter test duration (seconds):";
-      document.getElementById("instructions").innerText = lang === "zh" ? "点击下面的方块开始！（支持左键和右键）" : "Click the box below to start! (Left & right click supported)";
-      document.getElementById("pad-text").innerText = lang === "zh" ? "点击这里！" : "Click Here!";
-      document.getElementById("pad-clicks").innerText = "" + clicks;
-      document.getElementById("cps-display").innerText = lang === "zh" ? "当前 CPS：0" : "Current CPS: 0";
-      document.getElementById("clicks-display").innerText = lang === "zh" ? "总点击次数：0" : "Total Clicks: 0";
-      document.getElementById("time-left-display").innerText = lang === "zh" ? "剩余时间：0s" : "Time Left: 0s";
-      document.getElementById("donate-title").innerText = lang === "zh" ? "支持我 - 微信支付捐赠" : "Support Me - WeChat Pay Donation";
-      document.getElementById("donate-text").innerText = lang === "zh" ? "请扫描二维码进行捐赠：" : "Scan the QR code below to donate:";
-      document.getElementById("thank-you").innerText = lang === "zh" ? "感谢您的支持！" : "Thank you for your support!";
+      document.getElementById("instructions").innerText = lang === "zh" ? "点击下面的方块开始！（支持左键和右键）" : "Click the box below to start! (Supports left and right mouse buttons)";
     });
 
     document.getElementById("donate-btn").addEventListener("click", function () {
@@ -272,17 +336,22 @@
     document.getElementById("close-donate").addEventListener("click", function () {
       document.getElementById("donate-section").style.display = "none";
     });
-
-    const canvas = document.getElementById('rain');
+        const canvas = document.getElementById('rain');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split("");
     const drops = [];
 
     function createDrop() {
       const x = Math.random() * canvas.width;
-      drops.push({ x: x, y: -20, speed: Math.random() * 5 + 2, char: chars[Math.floor(Math.random() * chars.length)] });
+      drops.push({
+        x: x,
+        y: -20,
+        speed: Math.random() * 5 + 2,
+        char: chars[Math.floor(Math.random() * chars.length)]
+      });
     }
 
     function drawRain() {
@@ -306,6 +375,12 @@
 
     setInterval(createDrop, 100);
     setInterval(drawRain, 30);
+
+    // Optional: Resize canvas on window resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   </script>
 </body>
 </html>
