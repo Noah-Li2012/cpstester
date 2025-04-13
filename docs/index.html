@@ -49,7 +49,14 @@
   color: #FFA500;
   font-weight: bold;
   animation: combo-animation 0.6s ease-out;
+  text-shadow:
+    -1px -1px 0 black,
+     1px -1px 0 black,
+    -1px  1px 0 black,
+     1px  1px 0 black;
+  font-weight: bold;
 }
+
 
 @keyframes combo-animation {
   0% {
@@ -312,14 +319,15 @@
     }
 
     function displayCombo() {
-      const comboDisplay = document.getElementById("pad-text");
-      comboDisplay.innerText = `🔥${clicks}🔥`;
-      comboDisplay.style.color = "yellow";
-      setTimeout(() => {
-        comboDisplay.innerText = lang === "zh" ? "点击这里！" : "Click Here!";
-        comboDisplay.style.color = "white";
-      }, 1000);
-    }
+  const comboDisplay = document.getElementById("pad-text");
+  comboDisplay.innerHTML = `<span class="combo-text">🔥${clicks}🔥</span>`;
+  comboDisplay.style.color = "yellow";
+  setTimeout(() => {
+    comboDisplay.innerText = lang === "zh" ? "点击这里！" : "Click Here!";
+    comboDisplay.style.color = "white";
+  }, 100);
+}
+
 
     document.getElementById("lang-btn").addEventListener("click", function () {
       lang = lang === "zh" ? "en" : "zh";
@@ -376,7 +384,6 @@
     setInterval(createDrop, 100);
     setInterval(drawRain, 30);
 
-    // Optional: Resize canvas on window resize
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
