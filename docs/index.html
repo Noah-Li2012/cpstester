@@ -205,7 +205,7 @@
     <p id="instructions" class="text-background">点击下面的方块开始！（支持左键和右键）</p>
 
     <div id="click-pad">
-      <div id="pad-text">点击这里！</div>
+      <div id="pad-text">⬇️</div>
       <div id="pad-clicks">0</div>
     </div>
 
@@ -323,7 +323,7 @@
   comboDisplay.innerHTML = `<span class="combo-text">🔥${clicks}🔥</span>`;
   comboDisplay.style.color = "yellow";
   setTimeout(() => {
-    comboDisplay.innerText = lang === "zh" ? "点击这里！" : "Click Here!";
+    comboDisplay.innerText = lang === "zh" ? "⬇️" : "Click Here!";
     comboDisplay.style.color = "white";
   }, 100);
 }
